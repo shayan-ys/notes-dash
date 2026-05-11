@@ -133,9 +133,8 @@ def build() -> int:
     (OUT_DIR / "manifest.json").write_text(json.dumps(entries, ensure_ascii=False))
     (OUT_DIR / "index.html").write_text(render_index(site_config()), encoding="utf-8")
 
-    # --- stats.json (for homepage widget) ---
-    now = datetime.now(tz=timezone.utc)
-    week_ago = now.timestamp() - 7 * 86400
+    now_ts = datetime.now(tz=timezone.utc).timestamp()
+    week_ago = now_ts - 7 * 86400
 
     published_this_week = 0
     latest_ts: float | None = None
@@ -144,7 +143,7 @@ def build() -> int:
         if not created_str:
             continue
         try:
-            ts = datetime.fromisoformat(created_str.replace("Z", "+00:00")).timestamp()
+            ts = datetime.fromisoformat(created_str).timestamp()
         except ValueError:
             continue
         if ts >= week_ago:
@@ -155,7 +154,7 @@ def build() -> int:
     if latest_ts is None:
         last_published = "—"
     else:
-        diff = now.timestamp() - latest_ts
+        diff = now_ts - latest_ts
         if diff < 60:
             last_published = "just now"
         elif diff < 3600:
@@ -172,9 +171,7 @@ def build() -> int:
         "published_this_week": published_this_week,
         "last_published": last_published,
     }
-    stats_tmp = OUT_DIR / "stats.json.tmp"
-    stats_tmp.write_text(json.dumps(stats, ensure_ascii=False))
-    stats_tmp.rename(OUT_DIR / "stats.json")
+    (OUT_DIR / "stats.json").write_text(json.dumps(stats, ensure_ascii=False))
 
     print(f"built manifest with {len(entries)} pages", file=sys.stderr)
     return 0
