@@ -132,6 +132,9 @@ def build() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "manifest.json").write_text(json.dumps(entries, ensure_ascii=False))
     (OUT_DIR / "index.html").write_text(render_index(site_config()), encoding="utf-8")
+    favicon = TEMPLATE.parent / "favicon.svg"
+    if favicon.exists():
+        shutil.copyfile(favicon, OUT_DIR / "favicon.svg")
 
     now_ts = datetime.now(tz=timezone.utc).timestamp()
     week_ago = now_ts - 7 * 86400
