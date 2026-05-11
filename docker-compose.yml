@@ -1,0 +1,22 @@
+services:
+  notes-dash:
+    build: .
+    image: notes-dash:local
+    container_name: notes-dash
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8181}:8181"
+    environment:
+      NOTES_REPO_SLUG: ${NOTES_REPO_SLUG}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_USERNAME: ${GITHUB_USERNAME:-git}
+      NOTES_BASE_URL: ${NOTES_BASE_URL}
+      NOTES_SITE_TITLE: ${NOTES_SITE_TITLE:-}
+      NOTES_UNPUBLISH_CMD: ${NOTES_UNPUBLISH_CMD:-}
+      NOTES_FOOTER_HOST: ${NOTES_FOOTER_HOST:-}
+      NOTES_LEDGER_PATH: ${NOTES_LEDGER_PATH:-.ledger.json}
+    volumes:
+      - notes-dash-data:/var/lib/notes-dash
+
+volumes:
+  notes-dash-data:

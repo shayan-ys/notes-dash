@@ -1,0 +1,1 @@
+*/10 * * * * /app/build_manifest.py >/dev/null 2>&1
