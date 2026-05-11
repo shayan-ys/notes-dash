@@ -22,6 +22,14 @@ services:
       NOTES_LEDGER_PATH: ${NOTES_LEDGER_PATH:-.ledger.json}
     volumes:
       - notes-dash-data:/var/lib/notes-dash
+    networks:
+      - default
+      - main_stack
 
 volumes:
   notes-dash-data:
+
+networks:
+  main_stack:
+    external: true
+    name: docker_default

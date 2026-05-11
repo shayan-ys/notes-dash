@@ -20,6 +20,7 @@ import os
 import shutil
 import subprocess
 import sys
+from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
@@ -131,6 +132,50 @@ def build() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "manifest.json").write_text(json.dumps(entries, ensure_ascii=False))
     (OUT_DIR / "index.html").write_text(render_index(site_config()), encoding="utf-8")
+
+    # --- stats.json (for homepage widget) ---
+    now = datetime.now(tz=timezone.utc)
+    week_ago = now.timestamp() - 7 * 86400
+
+    published_this_week = 0
+    latest_ts: float | None = None
+    for e in entries:
+        created_str = e.get("created")
+        if not created_str:
+            continue
+        try:
+            ts = datetime.fromisoformat(created_str.replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            continue
+        if ts >= week_ago:
+            published_this_week += 1
+        if latest_ts is None or ts > latest_ts:
+            latest_ts = ts
+
+    if latest_ts is None:
+        last_published = "—"
+    else:
+        diff = now.timestamp() - latest_ts
+        if diff < 60:
+            last_published = "just now"
+        elif diff < 3600:
+            last_published = f"{int(diff // 60)}m ago"
+        elif diff < 86400:
+            last_published = f"{int(diff // 3600)}h ago"
+        elif diff < 30 * 86400:
+            last_published = f"{int(diff // 86400)}d ago"
+        else:
+            last_published = f"{int(diff // (30 * 86400))}mo ago"
+
+    stats = {
+        "total_pages": len(entries),
+        "published_this_week": published_this_week,
+        "last_published": last_published,
+    }
+    stats_tmp = OUT_DIR / "stats.json.tmp"
+    stats_tmp.write_text(json.dumps(stats, ensure_ascii=False))
+    stats_tmp.rename(OUT_DIR / "stats.json")
+
     print(f"built manifest with {len(entries)} pages", file=sys.stderr)
     return 0
 
