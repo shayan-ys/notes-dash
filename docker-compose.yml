@@ -1,6 +1,11 @@
 services:
   notes-dash:
-    build: .
+    build:
+      context: .
+      # Use host network during build so the package fetch can use the host's
+      # DNS — Docker's default bridge can't resolve dl-cdn.alpinelinux.org on
+      # some hosts (notably Raspberry Pi with the default daemon config).
+      network: host
     image: notes-dash:local
     container_name: notes-dash
     restart: unless-stopped
