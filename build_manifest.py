@@ -173,6 +173,7 @@ def build() -> int:
         "total_pages": len(entries),
         "published_this_week": published_this_week,
         "last_published": last_published,
+        "built_at": datetime.now(tz=timezone.utc).isoformat(timespec="seconds"),
     }
     (OUT_DIR / "stats.json").write_text(json.dumps(stats, ensure_ascii=False))
 

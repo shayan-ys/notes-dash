@@ -318,6 +318,7 @@ footer .dot { color: var(--accent); }
   <div id="empty" class="empty" hidden>nothing in the archive yet</div>
 
   <footer>
+    <span id="footerBuilt"></span>
     <span id="footerHost"></span>
   </footer>
 </main>
@@ -448,6 +449,14 @@ fetch("manifest.json", { cache: "no-store" })
     $empty.hidden = false;
     $empty.textContent = "failed to load manifest — " + err;
   });
+
+fetch("stats.json", { cache: "no-store" })
+  .then(r => r.json())
+  .then(s => {
+    const el = document.getElementById("footerBuilt");
+    if (s.built_at) el.textContent = `rebuilt ${relTime(s.built_at)}`;
+  })
+  .catch(() => {});
 </script>
 </body>
 </html>
