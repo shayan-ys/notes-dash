@@ -127,10 +127,10 @@ trusted-network context. If you want public discovery, that's a different tool.
 ## Companion: the publish side
 
 `notes-dash` only *reads* a ledger. The matching write-side flow lives at
-[shayan-ys/notes-publish](https://github.com/shayan-ys/notes-publish) — a small
-CLI that takes a markdown writeup, generates a 22-char slug, commits the rendered
-HTML into the notes repo, and updates `.ledger.json`. Either flow works on its
-own; together they're a complete private-publishing pipeline.
+[shayan-ys/notes-publisher](https://github.com/shayan-ys/notes-publisher) — a small
+CLI that takes an HTML writeup, generates a 22-char slug, commits the rendered
+page into a notes-content repo, and updates `.ledger.json`. Either flow works on
+its own; together they're a complete private-publishing pipeline.
 
 ## License
 
