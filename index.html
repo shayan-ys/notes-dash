@@ -303,7 +303,7 @@ footer .dot { color: var(--accent); }
   <header>
     <div class="eyebrow">Private archive</div>
     <h1 id="title"></h1>
-    <p class="lede">A working index of writeups published privately to <a id="baseLink" target="_blank" rel="noopener"></a>. Each page sits behind an unguessable URL, shared by direct link only.</p>
+    <p class="lede" id="lede"></p>
 
     <div class="tools">
       <label class="search">
@@ -318,7 +318,6 @@ footer .dot { color: var(--accent); }
   <div id="empty" class="empty" hidden>nothing in the archive yet</div>
 
   <footer>
-    <span><span class="dot">●</span> live · rebuilt from <a id="repoLink" href="#" style="color:inherit;text-decoration:none">notes repo</a></span>
     <span id="footerHost"></span>
   </footer>
 </main>
@@ -348,11 +347,30 @@ titleEl.innerHTML = titleParts.length > 1
   : esc(CONFIG.siteTitle);
 document.title = `${CONFIG.siteTitle} — archive`;
 
-const baseLink = document.getElementById("baseLink");
-baseLink.href = CONFIG.baseUrl;
-baseLink.textContent = CONFIG.baseUrl.replace(/^https?:\/\//, "");
-
 document.getElementById("footerHost").textContent = CONFIG.footerHost || "";
+
+const $lede = document.getElementById("lede");
+function relTime(s) {
+  const d = new Date(s);
+  if (isNaN(d)) return "";
+  const secs = Math.max(0, (Date.now() - d.getTime()) / 1000);
+  if (secs < 60) return "just now";
+  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+  if (secs < 86400) return `${Math.floor(secs / 3600)}h ago`;
+  const days = Math.floor(secs / 86400);
+  if (days === 1) return "yesterday";
+  if (days < 30) return `${days} days ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} month${months === 1 ? "" : "s"} ago`;
+  const years = Math.floor(days / 365);
+  return `${years} year${years === 1 ? "" : "s"} ago`;
+}
+function setLede(list) {
+  if (!list.length) { $lede.textContent = ""; return; }
+  const latest = list.reduce((a, b) => (a.updated > b.updated ? a : b));
+  const n = list.length;
+  $lede.textContent = `Last published ${relTime(latest.updated)} — ${n} note${n === 1 ? "" : "s"} total.`;
+}
 
 let pages = [];
 const $rows = document.getElementById("rows");
@@ -425,7 +443,7 @@ document.addEventListener("keydown", e => {
 
 fetch("manifest.json", { cache: "no-store" })
   .then(r => r.json())
-  .then(d => { pages = d; render(pages); })
+  .then(d => { pages = d; setLede(pages); render(pages); })
   .catch(err => {
     $empty.hidden = false;
     $empty.textContent = "failed to load manifest — " + err;
