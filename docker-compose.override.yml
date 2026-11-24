@@ -1,0 +1,4 @@
+services:
+  notes-dash:
+    image: ghcr.io/shayan-ys/notes-dash:v0.1.2
+    build: !reset null

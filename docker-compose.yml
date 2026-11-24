@@ -8,6 +8,7 @@ services:
       network: host
     image: notes-dash:local
     container_name: notes-dash
+    init: true   # tini reaps orphaned git helpers (prevents zombie pileup)
     restart: unless-stopped
     ports:
       - "${PORT:-8181}:8181"
